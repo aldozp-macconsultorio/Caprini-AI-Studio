@@ -1,0 +1,6 @@
+{
+  "name": "Caprini VTE Risk Score - NeoVasc",
+  "description": "Calculadora de Escore de Risco de Caprini para profilaxia de TEV com geração de laudo imprimível.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

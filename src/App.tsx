@@ -82,6 +82,10 @@ export default function App() {
   const [gender, setGender] = useState<Gender>('M');
   const [weight, setWeight] = useState<string>('');
   const [height, setHeight] = useState<string>('');
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>('aldo');
+  const [doctorName, setDoctorName] = useState('Aldo Z. Passalacqua');
+  const [doctorCRM, setDoctorCRM] = useState('CRM/MS: 8027');
+  const [doctorSpecialty, setDoctorSpecialty] = useState('Cirurgia Vascular');
   const [selectedFactors, setSelectedFactors] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<'form' | 'report'>('form');
 
@@ -193,13 +197,30 @@ export default function App() {
       <style>{`
         .print-only { display: none; }
         @media print {
-          @page { margin: 1cm; }
-          body { background: white !important; font-family: serif !important; color: black !important; }
+          @page { 
+            size: A4;
+            margin: 1.5cm; 
+          }
+          body { 
+            background: white !important; 
+            font-family: serif !important; 
+            color: black !important;
+            font-size: 11pt !important;
+            line-height: 1.2 !important;
+          }
           .no-print { display: none !important; }
           .print-only { display: block !important; }
-          .container { max-width: 100% !important; box-shadow: none !important; padding: 0 !important; }
+          .container { 
+            max-width: 100% !important; 
+            box-shadow: none !important; 
+            padding: 0 !important; 
+            margin: 0 !important;
+          }
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
+          
+          /* Prevent page breaks inside sections */
+          .print-section { page-break-inside: avoid; }
         }
         input, button { touch-action: manipulation; }
       `}</style>
@@ -209,10 +230,10 @@ export default function App() {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Logo Component */}
-            <div className="flex items-center gap-3 group">
-              <div className="w-auto h-12 flex items-center justify-center overflow-hidden">
+            <div className="flex flex-col items-start gap-1 group">
+              <div className="w-auto h-16 flex items-center justify-center overflow-hidden">
                 <img 
-                  src="/logoneov.jpg" 
+                  src="https://i.postimg.cc/ZnMMFLf5/logoneov-sem-escrito.jpg" 
                   alt="NeoVasc Logo" 
                   className="h-full w-auto object-contain"
                   onError={(e) => {
@@ -225,12 +246,7 @@ export default function App() {
                   }}
                 />
               </div>
-              <div className="border-l-2 border-slate-200 pl-3">
-                <h1 className="text-2xl font-black text-[#1a3a5f] tracking-tighter leading-none">
-                  NEO<span className="text-blue-500">VASC</span>
-                </h1>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Cirurgia Vascular e Endovascular</p>
-              </div>
+              <p className="text-[9px] text-[#1a3a5f] font-black uppercase tracking-[0.2em] leading-none ml-1">Flebologia Avançada</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -281,7 +297,7 @@ export default function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
-                    <User size={16} /> Nome Completo
+                    <User size={16} /> Nome Completo do Paciente
                   </label>
                   <input 
                     type="text" 
@@ -302,6 +318,44 @@ export default function App() {
                     placeholder="Nº de Registro"
                     className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all bg-slate-50/50 text-base"
                   />
+                </div>
+              </div>
+
+              {/* Doctor Info Section */}
+              <div className="mt-6 pt-6 border-t border-slate-100">
+                <label className="text-sm font-medium text-slate-600 flex items-center gap-2 mb-3">
+                  <Stethoscope size={16} /> Médico Responsável
+                </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {[
+                    { id: 'aldo', name: 'Aldo Z. Passalacqua', crm: 'CRM/MS: 8027', specialty: 'Cirurgia Vascular' },
+                    { id: 'cesar', name: 'César P. Campos', crm: 'CRM/MS: 8029', specialty: 'Cirurgia Vascular' }
+                  ].map((doc) => (
+                    <button 
+                      key={doc.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedDoctorId(doc.id);
+                        setDoctorName(doc.name);
+                        setDoctorCRM(doc.crm);
+                        setDoctorSpecialty(doc.specialty);
+                      }}
+                      className={`flex items-center gap-3 p-4 rounded-xl border transition-all text-left ${selectedDoctorId === doc.id ? 'bg-blue-50 border-blue-500 ring-4 ring-blue-100' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                    >
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${selectedDoctorId === doc.id ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                        <User size={20} />
+                      </div>
+                      <div>
+                        <p className={`font-bold text-sm ${selectedDoctorId === doc.id ? 'text-blue-900' : 'text-slate-700'}`}>{doc.name}</p>
+                        <p className="text-[10px] text-slate-500 font-medium">{doc.crm} • {doc.specialty}</p>
+                      </div>
+                      {selectedDoctorId === doc.id && (
+                        <div className="ml-auto text-blue-600">
+                          <CheckCircle2 size={18} />
+                        </div>
+                      )}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -385,9 +439,9 @@ export default function App() {
 
                {/* Report UI Preview */}
                <div className="flex flex-col items-center border-b-2 border-[#1a3a5f] pb-8 mb-8">
-                  <div className="w-auto h-24 mb-6 flex items-center justify-center">
+                  <div className="w-auto h-28 mb-1 flex flex-col items-center justify-center">
                     <img 
-                      src="/logoneov.jpg" 
+                      src="https://i.postimg.cc/ZnMMFLf5/logoneov-sem-escrito.jpg" 
                       alt="NeoVasc Logo" 
                       className="h-full w-auto object-contain"
                       onError={(e) => {
@@ -396,9 +450,9 @@ export default function App() {
                         if(p) p.innerHTML = '<span class="text-4xl font-black text-[#1a3a5f]">NEOVASC</span>';
                       }}
                     />
+                    <p className="text-[10px] font-black text-[#1a3a5f] uppercase tracking-[0.3em] mt-2">Flebologia Avançada</p>
                   </div>
-                  <h2 className="text-2xl font-black text-[#1a3a5f] uppercase tracking-tight">Relatório de Avaliação Caprini</h2>
-                  <p className="text-sm font-bold text-slate-400 mt-1 uppercase tracking-widest">Unidade de Cirurgia Vascular</p>
+                  <h2 className="text-2xl font-black text-[#1a3a5f] uppercase tracking-tight mt-6">Relatório de Avaliação Caprini</h2>
                </div>
 
                <div className="grid grid-cols-2 gap-8 mb-10">
@@ -408,11 +462,9 @@ export default function App() {
                     <p className="text-xs text-slate-500 font-medium mt-2">ID: {patientID || "N/A"}</p>
                   </div>
                   <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest italic border-b border-slate-200 pb-2">Data / Hora</p>
-                    <p className="text-xl font-bold text-[#1a3a5f]">{new Date().toLocaleDateString('pt-BR')}</p>
-                    <div className="flex items-center gap-2 mt-2 text-xs text-slate-500 font-medium">
-                       <Calendar size={12} /> Avaliação pré-operatória
-                    </div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest italic border-b border-slate-200 pb-2">Médico Responsável</p>
+                    <p className="text-xl font-bold text-[#1a3a5f] leading-tight">{doctorName || "Não Informado"}</p>
+                    <p className="text-xs text-slate-500 font-medium mt-2">{doctorCRM || "N/A"} • {doctorSpecialty}</p>
                   </div>
                </div>
 
@@ -515,9 +567,9 @@ export default function App() {
       <div className="print-only container mx-auto p-12 bg-white text-black font-serif">
          {/* Report Header for Paper */}
          <div className="flex flex-col items-center border-b-2 border-black pb-8 mb-8">
-            <div className="w-auto h-24 mb-4 flex items-center justify-center">
+            <div className="w-auto h-28 mb-1 flex flex-col items-center justify-center">
               <img 
-                src="/logoneov.jpg" 
+                src="https://i.postimg.cc/ZnMMFLf5/logoneov-sem-escrito.jpg" 
                 alt="NeoVasc Logo" 
                 className="h-full w-auto object-contain"
                 onError={(e) => {
@@ -526,9 +578,9 @@ export default function App() {
                   if(p) p.innerHTML = '<span class="text-3xl font-black">NEOVASC</span>';
                 }}
               />
+              <p className="text-[10px] font-black text-black uppercase tracking-[0.3em] mt-2">Flebologia Avançada</p>
             </div>
-            <p className="text-sm font-bold text-slate-500 uppercase tracking-widest text-center">Unidade de Cirurgia Vascular e Endovascular</p>
-            <h2 className="text-2xl font-black mt-4 uppercase text-center tracking-tight">Relatório de Avaliação de Risco de TEV</h2>
+            <h2 className="text-2xl font-black mt-8 uppercase text-center tracking-tight">Relatório de Avaliação de Risco de TEV</h2>
          </div>
 
          {/* Patient Info for Paper */}
@@ -552,62 +604,72 @@ export default function App() {
          </div>
 
          {/* Selection Summary for Paper */}
-         <div className="mb-8">
-            <h3 className="text-md font-bold border-b border-black mb-4 uppercase flex items-center gap-2 pb-1">
+         <div className="mb-4 print-section">
+            <h3 className="text-md font-bold border-b border-black mb-2 uppercase flex items-center gap-2 pb-1">
               Fatores de Risco Identificados
             </h3>
-            <div className="grid grid-cols-1 gap-2 text-sm">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-[9pt]">
               {tickedLabels.length > 0 ? tickedLabels.map((l, i) => (
-                <div key={i} className="flex gap-2 items-start">
-                  <span className="font-bold">•</span>
-                  <span>{l}</span>
+                <div key={i} className="flex gap-2 items-start shrink-0">
+                  <span className="font-bold shrink-0">•</span>
+                  <span className="leading-tight shrink-0">{l}</span>
                 </div>
               )) : (
-                <p className="italic text-slate-500">Nenhum fator de risco identificado.</p>
+                <p className="italic text-slate-500 col-span-2">Nenhum fator de risco identificado.</p>
               )}
             </div>
          </div>
 
          {/* Results Box for Paper */}
-         <div className="mb-10 p-8 border-2 border-black rounded-xl">
-            <div className="grid grid-cols-2 gap-12">
+         <div className="mb-4 p-4 border-2 border-black rounded-xl print-section">
+            <div className="grid grid-cols-2 gap-4">
                <div>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-widest">Caprini Score Total</p>
-                  <p className="text-6xl font-black">{totalScore}</p>
+                  <p className="text-[9pt] font-bold text-slate-500 uppercase mb-1 tracking-widest">Caprini Score Total</p>
+                  <p className="text-4xl font-black">{totalScore}</p>
                </div>
                <div>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-widest">Classificação de Risco</p>
+                  <p className="text-[9pt] font-bold text-slate-500 uppercase mb-1 tracking-widest">Classificação de Risco</p>
                   <p className="text-xl font-black uppercase">{riskInfo.label}</p>
                </div>
             </div>
 
-            <div className="mt-8 pt-8 border-t border-slate-300">
+            <div className="mt-2 pt-2 border-t border-slate-300">
                <div>
-                  <p className="text-[10px] font-bold text-slate-500 uppercase mb-2 tracking-widest">Profilaxia Recomendada</p>
-                  <p className="text-lg font-bold">{riskInfo.prophylaxis}</p>
-                  <p className="text-sm mt-1 font-medium italic">Duração: {riskInfo.duration}</p>
+                  <p className="text-[9pt] font-bold text-slate-500 uppercase mb-0.5 tracking-widest">Profilaxia Recomendada</p>
+                  <p className="text-md font-bold">{riskInfo.prophylaxis}</p>
+                  <p className="text-sm mt-0.5 font-medium italic">Duração: {riskInfo.duration}</p>
                </div>
             </div>
          </div>
 
          {/* Detailed Guidelines for Paper */}
-         <div className="mb-12">
-            <h3 className="text-md font-bold border-b border-black mb-6 uppercase pb-1">Conduta Sugerida</h3>
-            <div className="text-sm space-y-4">
-              <p><strong>Deambulação:</strong> Incentivar mobilização precoce.</p>
-              {totalScore >= 3 && <p><strong>Mecânica:</strong> Uso de meias elásticas ou CPI.</p>}
-              {totalScore >= 5 && <p><strong>Farmacológica:</strong> Iniciar profilaxia com HBPM (ex: Enoxaparina 40mg SC 1x/dia) ou HNF.</p>}
+         <div className="mb-4 print-section">
+            <h3 className="text-md font-bold border-b border-black mb-2 uppercase pb-1">Conduta Sugerida</h3>
+            <div className="text-[9pt] space-y-1">
+              <p><strong>Deambulação:</strong> Incentivar mobilização precoce ativa ou passiva.</p>
+              {totalScore >= 3 && <p><strong>Mecânica:</strong> Uso de meias de compressão graduada ou compressão pneumática intermitente (CPI).</p>}
+              {totalScore >= 5 && <p><strong>Farmacológica:</strong> Iniciar profilaxia com HBPM (ex: Enoxaparina 40mg SC 1x/dia) ou HNF, ressalvadas contraindicações hemorrágicas.</p>}
             </div>
          </div>
 
-         {/* Signature for Paper */}
-         <div className="flex justify-between items-end mt-24">
+         {/* Signature / Doctor Block for Paper */}
+         <div className="flex justify-between items-end mt-4 print-section">
             <div className="text-[8px] text-slate-400">
                Doc ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
             </div>
             <div className="flex flex-col items-center">
-               <div className="w-64 border-t border-black mb-2"></div>
-               <p className="text-xs font-bold uppercase tracking-widest">Assinatura Médica</p>
+               {doctorName ? (
+                 <div className="flex flex-col items-center">
+                    <p className="text-sm font-black uppercase text-center">{doctorName}</p>
+                    <p className="text-xs font-bold text-slate-600 text-center">{doctorCRM}</p>
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest text-center">{doctorSpecialty}</p>
+                 </div>
+               ) : (
+                 <div className="flex flex-col items-center">
+                    <div className="w-64 border-b border-black mb-1"></div>
+                    <p className="text-xs font-bold uppercase tracking-widest">Assinatura Médica</p>
+                 </div>
+               )}
             </div>
          </div>
       </div>
